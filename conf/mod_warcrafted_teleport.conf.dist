@@ -3,34 +3,98 @@
 ###################################################################################################
 # WarcraftedTeleport module configuration
 #
+# Todas las opciones se leen en el momento de usarlas, así que ".reload config" las aplica
+# al instante sin reiniciar el worldserver.
+# Every option is read at the point of use, so ".reload config" applies it right away with
+# no worldserver restart.
+#
 #    WarcraftedTeleport.Enable
-#        Description: Habilita o deshabilita el módulo por completo, incluida la detección
-#                      automática del gating de Individual Progression descrita abajo.
-#        Default:     1 - Habilitado
-#                     0 - Deshabilitado
+#        Description:  Enables or disables the whole module. With it off the NPC keeps its
+#                      menu but no longer teleports anyone.
+#        Descripción:  Habilita o deshabilita el módulo por completo. Desactivado, el NPC
+#                      conserva su menú pero deja de transportar a nadie.
+#        Default:     1 - Habilitado / Enabled
+#                     0 - Deshabilitado / Disabled
 
 WarcraftedTeleport.Enable = 1
 
 #
+#    WarcraftedTeleport.Announce
+#        Description:  Announces the module in chat when a player logs in.
+#        Descripción:  Anuncia el módulo por chat al iniciar sesión un jugador.
+#        Default:     1 - Anuncia / Announce
+#                     0 - No anuncia / Silent
+
+WarcraftedTeleport.Announce = 1
+
+#
 #    WarcraftedTeleport.ForceTierGate
-#        Description: Controla si se aplica el bloqueo por tier de Individual Progression sobre
-#                      los destinos del teleportador, independientemente de si ese módulo está
-#                      instalado o no.
-#                      Se aplica en cada arranque y también con ".reload config", sin necesidad
-#                      de reiniciar el worldserver.
-#        Default:     auto - Se detecta solo: aplica el bloqueo si IndividualProgression.Enable
-#                            está en 1, y no lo aplica si está en 0 o el módulo no existe.
-#                      on   - Aplica siempre el bloqueo por tier, tenga o no instalado el módulo
-#                            de Individual Progression.
-#                      off  - Nunca aplica el bloqueo por tier, aunque Individual Progression
-#                            esté instalado y activo. Todos los destinos quedan disponibles solo
-#                            con los requisitos de nivel y facción del archivo SQL base.
+#        Description:  Controls the mod-individual-progression tier gate over the teleporter
+#                      destinations, whether or not that module is installed. The character's
+#                      tier is read live, so unlocking a tier opens its destinations the next
+#                      time the menu is opened, with no restart and no reload.
+#        Descripción:  Controla el bloqueo por tier de mod-individual-progression sobre los
+#                      destinos del transportador, esté o no instalado ese módulo. El tier del
+#                      personaje se lee en vivo, así que desbloquear un tier abre sus destinos
+#                      la próxima vez que abra el menú, sin reiniciar ni recargar nada.
+#        Default:     auto - Se detecta solo: bloquea si IndividualProgression.Enable está en 1.
+#                            Auto-detect: gates only if IndividualProgression.Enable is 1.
+#                     on   - Bloquea siempre por tier / always gate by tier.
+#                     off  - No bloquea nunca por tier / never gate by tier.
 
 WarcraftedTeleport.ForceTierGate = "auto"
+
+#
+#    WarcraftedTeleport.GmBypass
+#        Description:  Game masters with GM mode on (".gm on") see every destination ignoring
+#                      level, faction and tier, and travel free and instantly. Meant for
+#                      debugging: it changes nothing for regular players.
+#        Descripción:  Los game masters con el modo GM activo (".gm on") ven todos los destinos
+#                      ignorando nivel, facción y tier, y viajan gratis y al instante. Pensado
+#                      para depurar: no cambia nada para los jugadores normales.
+#        Default:     0 - Los GM juegan con las mismas reglas / GMs play by the same rules
+#                     1 - Los GM lo ven todo / GMs see everything
+
+WarcraftedTeleport.GmBypass = 0
+
+#
+#    WarcraftedTeleport.Cost.Base
+#    WarcraftedTeleport.Cost.PerLevel
+#        Description:  Price of one teleport, in copper: Base + PerLevel * character level.
+#                      Both at 0 means free. The price shows in the confirmation popup.
+#                      Reminder: 1 gold = 100 silver = 10000 copper.
+#        Descripción:  Precio de un transporte, en cobre: Base + PerLevel * nivel del personaje.
+#                      Ambos a 0 significa gratis. El precio sale en el aviso de confirmación.
+#                      Recordatorio: 1 oro = 100 plata = 10000 cobre.
+#        Default:     0 - Gratis / Free
+
+WarcraftedTeleport.Cost.Base = 0
+WarcraftedTeleport.Cost.PerLevel = 0
+
+#
+#    WarcraftedTeleport.Cooldown
+#        Description:  Seconds a character must wait between teleports.
+#        Descripción:  Segundos que debe esperar un personaje entre transportes.
+#        Default:     0 - Sin espera / No cooldown
+
+WarcraftedTeleport.Cooldown = 0
+
+#
+#    WarcraftedTeleport.CastTime
+#        Description:  Seconds of channelling before the trip. The character plays a channel
+#                      animation and gets a countdown in chat. Moving more than 5 yards or
+#                      entering combat cancels the trip and refunds the price.
+#        Descripción:  Segundos de canalización antes del viaje. El personaje hace la animación
+#                      de canalizar y recibe una cuenta atrás por chat. Moverse más de 5 metros
+#                      o entrar en combate cancela el viaje y devuelve el importe.
+#        Default:     0 - Transporte instantáneo / Instant teleport
+
+WarcraftedTeleport.CastTime = 0
 
 #
 # Notas sobre el NPC transportador y su menú
 #
 # El NPC y su menú (data/sql/world/base/mod_teleport_base.sql) se aplican siempre igual,
 # tanto en AzerothCore sin mods extra como con Playerbots activo: ninguno de los dos cambia
-# qué destinos deben estar disponibles.
+# qué destinos deben estar disponibles. Los destinos viven en la tabla
+# mod_warcrafted_teleport_destinations y se cargan al arrancar el worldserver.

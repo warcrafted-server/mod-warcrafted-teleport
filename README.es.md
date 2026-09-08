@@ -17,15 +17,18 @@
 
 Un módulo para **AzerothCore** que añade un NPC transportador con un menú de destinos: capitales, mazmorras clásicas/TBC/WotLK, raids y zonas del mundo.
 
-El módulo trae un único conjunto de destinos que funciona igual en un reino de AzerothCore estándar y en uno con Playerbots activo: ninguno de los dos cambia qué debería ser alcanzable. Si además tienes instalado y activo [mod-individual-progression](https://github.com/warcrafted-server/mod-individual-progression), este módulo lo detecta automáticamente al arrancar y añade condiciones extra por encima, ocultando cualquier destino que el tier de progresión del personaje aún no haya desbloqueado. No hace falta elegir ninguna variante a mano.
+El módulo trae un único conjunto de destinos que funciona igual en un reino de AzerothCore estándar y en uno con Playerbots activo. Si además tienes instalado y activo [mod-individual-progression](https://github.com/warcrafted-server/mod-individual-progression), el módulo oculta cualquier destino que el tier de progresión del personaje aún no haya desbloqueado.
 
 ## Características
 
 * **Un solo NPC, un árbol de menús:** capitales (Horda/Alianza/neutral), mazmorras clásicas, mazmorras TBC, mazmorras WotLK, raids, y un explorador de zonas dividido por continente.
 * **Restringido por nivel y facción:** cada destino solo aparece cuando el personaje alcanza el nivel esperado de esa zona o mazmorra, y los destinos específicos de facción solo se muestran a la facción correspondiente.
-* **Detección automática de Individual Progression:** un `WorldScript` comprueba `IndividualProgression.Enable`. Si está activo, oculta los destinos por encima del tier de progresión actual del personaje, reflejando qué contenido ha desbloqueado de verdad el propio mod-individual-progression. Si está desactivado (o el módulo no está instalado), solo se aplican las reglas de nivel y facción.
-* **Forzable por configuración:** `WarcraftedTeleport.ForceTierGate` permite forzar la puerta por tier activada o desactivada independientemente de si Individual Progression está instalado, en vez de depender solo de la detección automática.
-* **Se aplica en caliente, sin reiniciar:** la puerta (y su override de configuración) se reevalúa tanto al arrancar como con `.reload config`, así que activar o desactivar Individual Progression o `ForceTierGate` surte efecto al instante.
+* **Bloqueo por tier de Individual Progression:** el tier del personaje se lee en vivo, así que desbloquear un tier abre sus destinos la próxima vez que abre el menú. Sin reiniciar, sin recargar y sin volver a entrar.
+* **Forzable por configuración:** `WarcraftedTeleport.ForceTierGate` fuerza el bloqueo por tier activado o desactivado independientemente de si Individual Progression está instalado.
+* **Modo GM para depurar:** con `WarcraftedTeleport.GmBypass` activo, los game masters en modo GM ven todos los destinos ignorando nivel, facción y tier, y viajan gratis y al instante. Los jugadores normales no se ven afectados.
+* **Coste en oro opcional:** un precio fijo por viaje escalado por el nivel del personaje, visible en el aviso de confirmación del cliente y cobrado en el servidor.
+* **Cooldown y canalización opcionales:** una espera entre viajes, y una animación de canalización con cuenta atrás por chat antes de viajar. Alejarse o entrar en combate cancela el viaje y devuelve el importe.
+* **Todo se aplica en caliente:** cada opción se lee en el momento de usarla, así que `.reload config` surte efecto al instante.
 
 ## Instalación
 
@@ -35,21 +38,33 @@ El módulo trae un único conjunto de destinos que funciona igual en un reino de
    git clone https://github.com/warcrafted-server/mod-warcrafted-teleport.git
    ```
 2. Vuelve a ejecutar CMake y recompila el proyecto.
-3. Importa `data/sql/world/base/mod_teleport_base.sql` en tu base de datos `acore_world`.
+3. Importa `data/sql/world/base/mod_teleport_base.sql` y `data/sql/db-world/mod-warcrafted-teleport-strings.sql` en tu base de datos `acore_world`.
 4. Copia `conf/mod_warcrafted_teleport.conf.dist` a `mod_warcrafted_teleport.conf` en la carpeta de configuración de tu servidor.
-5. Reinicia el worldserver. La puerta por tier de Individual Progression (si aplica) se activa sola.
+5. Reinicia el worldserver.
 
 ## Configuración
 
 | Opción | Descripción | Por defecto |
 |---|---|---|
-| `WarcraftedTeleport.Enable` | Habilita o deshabilita el módulo por completo, incluida la detección automática de Individual Progression. | `1` |
-| `WarcraftedTeleport.ForceTierGate` | `auto` detecta Individual Progression y solo activa la puerta si está habilitado. `on` fuerza siempre la puerta por tier, aunque el módulo no esté instalado. `off` nunca aplica la puerta por tier, aunque Individual Progression esté instalado y activo. Se aplica al arrancar y con `.reload config`, sin reiniciar. | `auto` |
+| `WarcraftedTeleport.Enable` | Habilita o deshabilita el módulo. Desactivado, el NPC conserva su menú pero deja de transportar a nadie. | `1` |
+| `WarcraftedTeleport.Announce` | Anuncia el módulo por chat al iniciar sesión. | `1` |
+| `WarcraftedTeleport.ForceTierGate` | `auto` bloquea solo si Individual Progression está activo. `on` bloquea siempre por tier. `off` no bloquea nunca por tier. | `auto` |
+| `WarcraftedTeleport.GmBypass` | Los game masters en modo GM ven todos los destinos y viajan gratis y al instante. | `0` |
+| `WarcraftedTeleport.Cost.Base` | Parte fija del precio de un viaje, en cobre. | `0` |
+| `WarcraftedTeleport.Cost.PerLevel` | Cobre añadido al precio por nivel del personaje. | `0` |
+| `WarcraftedTeleport.Cooldown` | Segundos que espera un personaje entre viajes. | `0` |
+| `WarcraftedTeleport.CastTime` | Segundos de canalización antes de viajar. | `0` |
+
+## Editar destinos
+
+Los destinos viven en la tabla `mod_warcrafted_teleport_destinations`, indexados por el menú y la opción a los que pertenecen, y se cargan al arrancar el worldserver. Las entradas del menú son filas normales de `gossip_menu_option`, y sus requisitos de nivel y facción, filas normales de `conditions`. Los requisitos de tier son la excepción: son una tabla en `src/mod_warcrafted_teleport.cpp`, porque hay que comprobarlos contra el personaje en vivo en vez de guardarlos como condiciones estáticas.
+
+El NPC no usa SmartAI. SmartAI transporta al jugador antes de que ningún hook de script pueda cobrarle, comprobar un cooldown o saltarse el bloqueo para un GM, así que el módulo gestiona el menú entero por su cuenta.
 
 ## Requisitos
 
 * AzerothCore v1.0.0+ (WotLK 3.3.5a)
-* Opcional: [mod-individual-progression](https://github.com/warcrafted-server/mod-individual-progression), para activar la puerta automática por tier.
+* Opcional: [mod-individual-progression](https://github.com/warcrafted-server/mod-individual-progression), para el bloqueo por tier.
 
 ## Licencia
 
