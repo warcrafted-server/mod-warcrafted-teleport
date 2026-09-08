@@ -23,8 +23,8 @@ DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 15 AND `SourceGroup` 
 
 DELETE FROM creature_template WHERE `entry`=@ENTRY LIMIT 1;
 DELETE FROM creature_template_model WHERE `CreatureID`=@ENTRY;
-REPLACE INTO creature_template (entry, name, subname, gossip_menu_id, minlevel, maxlevel, faction, npcflag, AIName, ScriptName) VALUES
-(@ENTRY, "Transportador Warcrafted", "BTC", 51900, 80, 80, 35, 3, "", "npc_warcrafted_teleport");
+REPLACE INTO creature_template (entry, name, subname, gossip_menu_id, minlevel, maxlevel, faction, npcflag, unit_class, AIName, ScriptName) VALUES
+(@ENTRY, "Transportador Warcrafted", "BTC", 51900, 80, 80, 35, 3, 1, "", "npc_warcrafted_teleport");
 REPLACE INTO creature_template_model (CreatureID, Idx, CreatureDisplayID, DisplayScale, Probability) VALUES
 (@ENTRY, 0, 2727, 1, 1);
 REPLACE INTO creature_template_addon VALUES 
@@ -160,7 +160,6 @@ REPLACE INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntr
 ('15', '51904', '21', '0', '0', '27', '0', '57', '3', '0', '0', '0', '0', '', 'Portal Master - Level req'),
 ('15', '51904', '22', '0', '0', '6', '0', '67', '0', '0', '0', '0', '0', '', 'Zul\'Aman'),
 ('15', '51904', '7', '0', '0', '27', '0', '80', '3', '0', '0', '0', '0', '', 'Portal Master - Level req'),
-('15', '51904', '16', '0', '0', '27', '0', '80', '3', '0', '0', '0', '0', '', 'Portal Master - Level req'),
 ('15', '51904', '12', '0', '0', '27', '0', '60', '3', '0', '0', '0', '0', '', 'Portal Master - Level req'),
 ('15', '51904', '19', '0', '0', '27', '0', '80', '3', '0', '0', '0', '0', '', 'Portal Master - Level req'),
 ('15', '51904', '18', '0', '0', '27', '0', '80', '3', '0', '0', '0', '0', '', 'Portal Master - Level req'),
