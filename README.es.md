@@ -23,8 +23,9 @@ El módulo trae un único conjunto de destinos que funciona igual en un reino de
 
 * **Un solo NPC, un árbol de menús:** capitales (Horda/Alianza/neutral), mazmorras clásicas, mazmorras TBC, mazmorras WotLK, raids, y un explorador de zonas dividido por continente.
 * **Restringido por nivel y facción:** cada destino solo aparece cuando el personaje alcanza el nivel esperado de esa zona o mazmorra, y los destinos específicos de facción solo se muestran a la facción correspondiente.
-* **Detección automática de Individual Progression:** en cada arranque del worldserver, un `WorldScript` comprueba `IndividualProgression.Enable`. Si está activo, oculta los destinos por encima del tier de progresión actual del personaje, reflejando qué contenido ha desbloqueado de verdad el propio mod-individual-progression. Si está desactivado (o el módulo no está instalado), solo se aplican las reglas de nivel y facción.
-* **Puerta autolimpiable:** las condiciones de tier se vuelven a aplicar (o se retiran) en cada arranque, así que activar o desactivar Individual Progression se refleja solo en el siguiente reinicio, sin limpieza manual de SQL.
+* **Detección automática de Individual Progression:** un `WorldScript` comprueba `IndividualProgression.Enable`. Si está activo, oculta los destinos por encima del tier de progresión actual del personaje, reflejando qué contenido ha desbloqueado de verdad el propio mod-individual-progression. Si está desactivado (o el módulo no está instalado), solo se aplican las reglas de nivel y facción.
+* **Forzable por configuración:** `WarcraftedTeleport.ForceTierGate` permite forzar la puerta por tier activada o desactivada independientemente de si Individual Progression está instalado, en vez de depender solo de la detección automática.
+* **Se aplica en caliente, sin reiniciar:** la puerta (y su override de configuración) se reevalúa tanto al arrancar como con `.reload config`, así que activar o desactivar Individual Progression o `ForceTierGate` surte efecto al instante.
 
 ## Instalación
 
@@ -36,13 +37,14 @@ El módulo trae un único conjunto de destinos que funciona igual en un reino de
 2. Vuelve a ejecutar CMake y recompila el proyecto.
 3. Importa `data/sql/world/base/mod_teleport_base.sql` en tu base de datos `acore_world`.
 4. Copia `conf/mod_warcrafted_teleport.conf.dist` a `mod_warcrafted_teleport.conf` en la carpeta de configuración de tu servidor.
-5. Reinicia el worldserver. La puerta por tier de Individual Progression (si aplica) se activa sola: no hay nada que configurar para eso.
+5. Reinicia el worldserver. La puerta por tier de Individual Progression (si aplica) se activa sola.
 
 ## Configuración
 
 | Opción | Descripción | Por defecto |
 |---|---|---|
 | `WarcraftedTeleport.Enable` | Habilita o deshabilita el módulo por completo, incluida la detección automática de Individual Progression. | `1` |
+| `WarcraftedTeleport.ForceTierGate` | `auto` detecta Individual Progression y solo activa la puerta si está habilitado. `on` fuerza siempre la puerta por tier, aunque el módulo no esté instalado. `off` nunca aplica la puerta por tier, aunque Individual Progression esté instalado y activo. Se aplica al arrancar y con `.reload config`, sin reiniciar. | `auto` |
 
 ## Requisitos
 

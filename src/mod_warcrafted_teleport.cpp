@@ -3,12 +3,15 @@
 #include "Log.h"
 #include "ScriptMgr.h"
 
+#include <algorithm>
+#include <string>
+
 namespace
 {
 // mod-individual-progression stores "character reached tier N" as rewarded hidden
 // quest 66000+N. CONDITION_QUESTREWARDED (type 8) on 66000+N reads as "at least tier N".
 // Rows below only ADD to the level/faction conditions already shipped in
-// data/sql/world/base/mod_teleport_vanilla.sql — they never replace them.
+// data/sql/world/base/mod_teleport_base.sql — they never replace them.
 //
 // Deliberately not gated: Draenei/Blood Elf starting zones (the module lets any
 // character reach these before the Dark Portal, via IsTBCRaceStartingZone()), and
@@ -84,28 +87,39 @@ class WarcraftedTeleportWorldScript : public WorldScript
 public:
     WarcraftedTeleportWorldScript() : WorldScript("WarcraftedTeleportWorldScript") { }
 
-    void OnStartup() override
+    // Runs on startup AND on `.reload config` (World::LoadConfigSettings calls this for both),
+    // so toggling WarcraftedTeleport.ForceTierGate takes effect immediately, no restart needed.
+    void OnAfterConfigLoad(bool /*reload*/) override
     {
         if (!sConfigMgr->GetOption<bool>("WarcraftedTeleport.Enable", true))
             return;
 
-        bool const individualProgression = sConfigMgr->GetOption<bool>("IndividualProgression.Enable", false);
+        std::string mode = sConfigMgr->GetOption<std::string>("WarcraftedTeleport.ForceTierGate", "auto");
+        std::transform(mode.begin(), mode.end(), mode.begin(), ::tolower);
+
+        bool applyGate;
+        if (mode == "on")
+            applyGate = true;
+        else if (mode == "off")
+            applyGate = false;
+        else
+            applyGate = sConfigMgr->GetOption<bool>("IndividualProgression.Enable", false);
 
         // Type 8 (CONDITION_QUESTREWARDED) on SourceGroup 51900-51908 is exclusively used by
         // our own tier gate, so this DELETE only ever removes rows we added ourselves. It runs
-        // every startup so switching Individual Progression off cleans the gate back out.
+        // every time so toggling the gate off (via config or uninstalling IP) cleans it back out.
         WorldDatabase.DirectExecute(
             "DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 15 "
             "AND `SourceGroup` BETWEEN 51900 AND 51908 AND `ConditionTypeOrReference` = 8");
 
-        if (individualProgression)
+        if (applyGate)
         {
             WorldDatabase.DirectExecute(IP_TIER_CONDITIONS);
-            LOG_INFO("server.loading", "mod-warcrafted-teleport: Individual Progression detected, tier gate applied.");
+            LOG_INFO("server.loading", "mod-warcrafted-teleport: tier gate applied (mode: {}).", mode);
         }
         else
         {
-            LOG_INFO("server.loading", "mod-warcrafted-teleport: base variant applied (no tier gate).");
+            LOG_INFO("server.loading", "mod-warcrafted-teleport: tier gate not applied (mode: {}).", mode);
         }
     }
 };

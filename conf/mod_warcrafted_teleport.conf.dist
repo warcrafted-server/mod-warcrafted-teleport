@@ -12,12 +12,25 @@
 WarcraftedTeleport.Enable = 1
 
 #
-# Detección automática
+#    WarcraftedTeleport.ForceTierGate
+#        Description: Controla si se aplica el bloqueo por tier de Individual Progression sobre
+#                      los destinos del teleportador, independientemente de si ese módulo está
+#                      instalado o no.
+#                      Se aplica en cada arranque y también con ".reload config", sin necesidad
+#                      de reiniciar el worldserver.
+#        Default:     auto - Se detecta solo: aplica el bloqueo si IndividualProgression.Enable
+#                            está en 1, y no lo aplica si está en 0 o el módulo no existe.
+#                      on   - Aplica siempre el bloqueo por tier, tenga o no instalado el módulo
+#                            de Individual Progression.
+#                      off  - Nunca aplica el bloqueo por tier, aunque Individual Progression
+#                            esté instalado y activo. Todos los destinos quedan disponibles solo
+#                            con los requisitos de nivel y facción del archivo SQL base.
+
+WarcraftedTeleport.ForceTierGate = "auto"
+
 #
-# El NPC transportador y su menú (data/sql/world/base/mod_teleport_base.sql) se aplican
-# siempre igual, tanto en AzerothCore sin mods extra como con Playerbots activo.
+# Notas sobre el NPC transportador y su menú
 #
-# Si además detecta IndividualProgression.Enable = 1 en la configuración del servidor,
-# el módulo añade en caliente al arrancar (sin tocar este archivo SQL) las condiciones
-# que ocultan cada destino hasta que el personaje alcanza el tier de progresión que lo
-# desbloquea. No hay ninguna opción que activar aquí para eso: se detecta solo.
+# El NPC y su menú (data/sql/world/base/mod_teleport_base.sql) se aplican siempre igual,
+# tanto en AzerothCore sin mods extra como con Playerbots activo: ninguno de los dos cambia
+# qué destinos deben estar disponibles.
