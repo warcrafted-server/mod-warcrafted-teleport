@@ -15,15 +15,16 @@
 
 # mod-warcrafted-teleport
 
-Un módulo para **AzerothCore** (SQL puro, sin C++) que añade un NPC transportador con un menú de destinos: capitales, mazmorras clásicas/TBC/WotLK, raids y zonas del mundo.
+Un módulo para **AzerothCore** que añade un NPC transportador con un menú de destinos: capitales, mazmorras clásicas/TBC/WotLK, raids y zonas del mundo.
 
-Esta primera versión está pensada para un reino de AzerothCore estándar: sin comportamiento específico de Playerbots ni restricciones por nivel de Individual Progression. Los destinos solo se restringen por nivel de personaje y facción, igual que las reglas de acceso del AzerothCore base.
+El módulo trae un único conjunto de destinos que funciona igual en un reino de AzerothCore estándar y en uno con Playerbots activo: ninguno de los dos cambia qué debería ser alcanzable. Si además tienes instalado y activo [mod-individual-progression](https://github.com/warcrafted-server/mod-individual-progression), este módulo lo detecta automáticamente al arrancar y añade condiciones extra por encima, ocultando cualquier destino que el tier de progresión del personaje aún no haya desbloqueado. No hace falta elegir ninguna variante a mano.
 
 ## Características
 
 * **Un solo NPC, un árbol de menús:** capitales (Horda/Alianza/neutral), mazmorras clásicas, mazmorras TBC, mazmorras WotLK, raids, y un explorador de zonas dividido por continente.
 * **Restringido por nivel y facción:** cada destino solo aparece cuando el personaje alcanza el nivel esperado de esa zona o mazmorra, y los destinos específicos de facción solo se muestran a la facción correspondiente.
-* **SQL puro:** no hace falta reiniciar el servidor para aplicar los datos, solo una importación a la base de datos.
+* **Detección automática de Individual Progression:** en cada arranque del worldserver, un `WorldScript` comprueba `IndividualProgression.Enable`. Si está activo, oculta los destinos por encima del tier de progresión actual del personaje, reflejando qué contenido ha desbloqueado de verdad el propio mod-individual-progression. Si está desactivado (o el módulo no está instalado), solo se aplican las reglas de nivel y facción.
+* **Puerta autolimpiable:** las condiciones de tier se vuelven a aplicar (o se retiran) en cada arranque, así que activar o desactivar Individual Progression se refleja solo en el siguiente reinicio, sin limpieza manual de SQL.
 
 ## Instalación
 
@@ -32,12 +33,21 @@ Esta primera versión está pensada para un reino de AzerothCore estándar: sin 
    cd /ruta/a/azerothcore-wotlk/modules
    git clone https://github.com/warcrafted-server/mod-warcrafted-teleport.git
    ```
-2. Vuelve a ejecutar CMake y recompila el proyecto (el módulo aún no trae C++, pero mantiene la estructura estándar para que el sistema de compilación recoja su SQL).
-3. Importa `data/sql/world/base/mod_teleport_vanilla.sql` en tu base de datos `acore_world`.
+2. Vuelve a ejecutar CMake y recompila el proyecto.
+3. Importa `data/sql/world/base/mod_teleport_base.sql` en tu base de datos `acore_world`.
+4. Copia `conf/mod_warcrafted_teleport.conf.dist` a `mod_warcrafted_teleport.conf` en la carpeta de configuración de tu servidor.
+5. Reinicia el worldserver. La puerta por tier de Individual Progression (si aplica) se activa sola: no hay nada que configurar para eso.
+
+## Configuración
+
+| Opción | Descripción | Por defecto |
+|---|---|---|
+| `WarcraftedTeleport.Enable` | Habilita o deshabilita el módulo por completo, incluida la detección automática de Individual Progression. | `1` |
 
 ## Requisitos
 
 * AzerothCore v1.0.0+ (WotLK 3.3.5a)
+* Opcional: [mod-individual-progression](https://github.com/warcrafted-server/mod-individual-progression), para activar la puerta automática por tier.
 
 ## Licencia
 

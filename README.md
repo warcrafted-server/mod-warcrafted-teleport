@@ -15,15 +15,16 @@
 
 # mod-warcrafted-teleport
 
-An **AzerothCore** module (pure SQL, no C++) that adds a teleporter NPC with a gossip menu covering capital cities, classic/TBC/WotLK dungeons, raids and world zones.
+An **AzerothCore** module that adds a teleporter NPC with a gossip menu covering capital cities, classic/TBC/WotLK dungeons, raids and world zones.
 
-This first version targets a plain AzerothCore realm: no Playerbots-specific behavior, no Individual Progression tier gating. Destinations are only restricted by character level and faction, matching stock AzerothCore's own access rules.
+The module ships one common set of destinations that works unchanged on a plain AzerothCore realm and on one running Playerbots — neither changes what should be reachable. If [mod-individual-progression](https://github.com/warcrafted-server/mod-individual-progression) is also installed and enabled, this module detects it automatically at startup and layers additional conditions on top, hiding any destination the character's progression tier hasn't unlocked yet. No manual variant selection is needed.
 
 ## Features
 
 * **One NPC, one menu tree:** capitals (Horde/Alliance/neutral), classic dungeons, TBC dungeons, WotLK dungeons, raids, and a zone browser split by continent.
 * **Level and faction gated:** each destination only appears once the character meets the zone's or dungeon's expected level, and faction-specific destinations only show to the matching faction.
-* **Pure SQL:** no server restart needed to apply the data — only a database import.
+* **Automatic Individual Progression detection:** at every worldserver startup, a `WorldScript` checks `IndividualProgression.Enable`. When it's on, destinations beyond the character's current progression tier are hidden — mirroring which content mod-individual-progression itself has actually unlocked. When it's off (or the module isn't installed), only the level/faction rules apply.
+* **Self-healing gate:** the tier conditions are re-applied (or removed) on every startup, so toggling Individual Progression on or off is picked up automatically on the next restart — no manual SQL cleanup needed.
 
 ## Installation
 
@@ -32,12 +33,21 @@ This first version targets a plain AzerothCore realm: no Playerbots-specific beh
    cd /path/to/azerothcore-wotlk/modules
    git clone https://github.com/warcrafted-server/mod-warcrafted-teleport.git
    ```
-2. Re-run CMake and rebuild the project (the module ships no C++ yet, but keeps the standard module layout so the build system picks up its SQL).
-3. Import `data/sql/world/base/mod_teleport_vanilla.sql` into your `acore_world` database.
+2. Re-run CMake and rebuild the project.
+3. Import `data/sql/world/base/mod_teleport_base.sql` into your `acore_world` database.
+4. Copy `conf/mod_warcrafted_teleport.conf.dist` to `mod_warcrafted_teleport.conf` in your server's config folder.
+5. Restart the worldserver. The Individual Progression tier gate (if applicable) is applied automatically — there is nothing to configure for it.
+
+## Configuration
+
+| Option | Description | Default |
+|---|---|---|
+| `WarcraftedTeleport.Enable` | Enables or disables the module entirely, including the automatic Individual Progression detection. | `1` |
 
 ## Requirements
 
 * AzerothCore v1.0.0+ (WotLK 3.3.5a)
+* Optional: [mod-individual-progression](https://github.com/warcrafted-server/mod-individual-progression), to enable the automatic tier gate.
 
 ## License
 

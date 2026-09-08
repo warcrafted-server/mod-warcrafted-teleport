@@ -1,9 +1,15 @@
 -- ---------------------------------------------------------------------------
--- mod-warcrafted-teleport - variante "vanilla" (AzerothCore sin mods extra)
+-- mod-warcrafted-teleport - datos base
 --
 -- NPC transportador con menú de destinos: capitales, mazmorras clásicas, TBC
--- y WotLK, raids y zonas del mundo. Sin restricciones de Playerbots ni de
--- Individual Progression: solo nivel y facción, como el AzerothCore base.
+-- y WotLK, raids y zonas del mundo. Restringido solo por nivel y facción.
+-- Válido tanto para AzerothCore sin mods extra como con Playerbots activo:
+-- ninguno de los dos cambia qué destinos deben estar disponibles.
+--
+-- Si además mod-individual-progression está activo, el propio módulo añade
+-- en caliente (WorldScript::OnStartup, ver src/mod_warcrafted_teleport.cpp)
+-- las condiciones de tier que ocultan lo que el personaje no ha desbloqueado
+-- todavía. Esas condiciones se suman a las de este archivo, nunca las sustituyen.
 -- ---------------------------------------------------------------------------
 
 SET

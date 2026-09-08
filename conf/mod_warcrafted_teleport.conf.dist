@@ -1,0 +1,23 @@
+[worldserver]
+
+###################################################################################################
+# WarcraftedTeleport module configuration
+#
+#    WarcraftedTeleport.Enable
+#        Description: Habilita o deshabilita el módulo por completo, incluida la detección
+#                      automática del gating de Individual Progression descrita abajo.
+#        Default:     1 - Habilitado
+#                     0 - Deshabilitado
+
+WarcraftedTeleport.Enable = 1
+
+#
+# Detección automática
+#
+# El NPC transportador y su menú (data/sql/world/base/mod_teleport_base.sql) se aplican
+# siempre igual, tanto en AzerothCore sin mods extra como con Playerbots activo.
+#
+# Si además detecta IndividualProgression.Enable = 1 en la configuración del servidor,
+# el módulo añade en caliente al arrancar (sin tocar este archivo SQL) las condiciones
+# que ocultan cada destino hasta que el personaje alcanza el tier de progresión que lo
+# desbloquea. No hay ninguna opción que activar aquí para eso: se detecta solo.
