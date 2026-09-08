@@ -512,7 +512,7 @@ REPLACE INTO `gossip_menu_option` (`MenuID`, `OptionID`, `OptionIcon`, `OptionTe
 ('51908', '0', '2', '|TInterface/ICONS/Achievement_Zone_BoreanTundra_01:35:35|tTundra Boreal', '0', '1', '1', '0', '0', '0', '0', '', '0'),
 ('51908', '10', '0', '|TInterface/ICONS/Mail_GMIcon:35:35|t<<Volver>>', '0', '1', '1', '51900', '0', '0', '0', NULL, '0');
 
-REPLACE INTO creature (guid, id1, map, spawnMask, phaseMask, equipment_id, position_x, position_y, position_z, orientation, spawntimesecs, wander_distance, currentwaypoint, curhealth, curmana, MovementType, npcflag, unit_flags, dynamicflags) VALUE
+REPLACE INTO creature (guid, id, map, spawnMask, phaseMask, equipment_id, position_x, position_y, position_z, orientation, spawntimesecs, wander_distance, currentwaypoint, curhealth, curmana, MovementType, npcflag, unit_flags, dynamicflags) VALUE
 (@GUID, @ENTRY, 571, 1, 64, 0, 5231.97, 2828.58, 409.191, 4.615, 300, 0, 0, 8334, 0, 0, 0, 0, 0),
 (@GUID+1, @ENTRY, 571, 1, 64, 0, 4887.16, 2883.82, 378.325, 2.93956, 300, 0, 0, 8334, 0, 0, 0, 0, 0),
 (@GUID+2, @ENTRY, 571, 1, 64, 0, 4614.43, 2849.43, 396.897, 3.33304, 300, 0, 0, 8334, 0, 0, 0, 0, 0),
