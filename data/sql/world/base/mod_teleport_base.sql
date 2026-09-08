@@ -22,8 +22,11 @@ SET
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 15 AND `SourceGroup` BETWEEN 51900 AND 51908 AND `ConditionTypeOrReference` = 8;
 
 DELETE FROM creature_template WHERE `entry`=@ENTRY LIMIT 1;
-REPLACE INTO creature_template (entry, modelid1, name, subname, gossip_menu_id, minlevel, maxlevel, faction, npcflag, AIName, ScriptName) VALUES 
-(@ENTRY, 2727, "Transportador Warcrafted", "BTC", 51900, 80, 80, 35, 3, "", "npc_warcrafted_teleport");
+DELETE FROM creature_template_model WHERE `CreatureID`=@ENTRY;
+REPLACE INTO creature_template (entry, name, subname, gossip_menu_id, minlevel, maxlevel, faction, npcflag, AIName, ScriptName) VALUES
+(@ENTRY, "Transportador Warcrafted", "BTC", 51900, 80, 80, 35, 3, "", "npc_warcrafted_teleport");
+REPLACE INTO creature_template_model (CreatureID, Idx, CreatureDisplayID, DisplayScale, Probability) VALUES
+(@ENTRY, 0, 2727, 1, 1);
 REPLACE INTO creature_template_addon VALUES 
 (@ENTRY, 0, 0, 0, 0, 0, 0, 35766);
 
